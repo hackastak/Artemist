@@ -1,0 +1,31 @@
+# PostgreSQL configuration
+#
+# This configuration supports both:
+# - Local PostgreSQL (default for development)
+# - Supabase or other cloud PostgreSQL (via DATABASE_URL)
+#
+# To use Supabase or another cloud database, set DATABASE_URL in your .env file:
+#   DATABASE_URL="postgres://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres"
+#
+# When DATABASE_URL is set, Rails automatically uses it (overriding the settings below).
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  # Supabase requires prepared_statements to be disabled for connection pooling
+  prepared_statements: <%= ENV.fetch("DATABASE_URL", "").include?("supabase") ? false : true %>
+
+development:
+  <<: *default
+  # DATABASE_URL takes precedence if set; otherwise use local database
+  url: <%= ENV["DATABASE_URL"] %>
+  database: <%= ENV["DATABASE_URL"] ? nil : "artemist_development" %>
+
+test:
+  <<: *default
+  database: artemist_test
+
+production:
+  <<: *default
+  url: <%= ENV["DATABASE_URL"] %>
